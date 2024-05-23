@@ -62,6 +62,18 @@ public class TodoServiceTest {
             Assertions.assertNotNull(todo2.getId());
             Assertions.assertNotEquals(todo1.getId(), todo2.getId());
         }
+        @Test
+        public void testUniqueID(){
+            TodoCreateRequest todoCreateRequest1 = new TodoCreateRequest("Title 1", "Description 1");
+            TodoCreateRequest todoCreateRequest2 = new TodoCreateRequest("Title 2", "Description 2");
+            Todo todo1 = todoService.create(todoCreateRequest1);
+            Todo todo2 = todoService.create(todoCreateRequest2);
+            todoService.delete(todo1.getId());
+            TodoCreateRequest todoCreateRequest3 = new TodoCreateRequest("Title 3", "Description 3");
+            Todo todo3 = todoService.create(todoCreateRequest3);
+            Assertions.assertNotEquals(todo2.getId(),todo3.getId());
+
+        }
 
         @Test
         public void testReadTodo() {

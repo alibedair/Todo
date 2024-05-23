@@ -45,6 +45,7 @@ public class TodoControllerTest {
         MockitoAnnotations.initMocks(this);
         this.mockMvc= MockMvcBuilders.standaloneSetup(todoController).build();
         this.objectMapper = new ObjectMapper();
+
     }
     @Test
     public void testReadTodo() throws Exception {
@@ -108,7 +109,7 @@ public class TodoControllerTest {
     public void testCreateTodo() throws Exception {
         Todo todo = new Todo("1", "Testing", "test a system", false);
 
-        String todoCreateRequestJson = "{\"title\":\"Testing\",\"description\":\"test a system\"}";
+        String todoCreateRequestJson = objectMapper.writeValueAsString(todo);
 
         when(todoService.create(Mockito.any(TodoCreateRequest.class))).thenReturn(todo);
 
@@ -123,18 +124,19 @@ public class TodoControllerTest {
     @Test
     public void testCreateTodowithEmptytitle() throws Exception{
 
-        String invalidRequestJson = "{\"title\":\"\",\"description\":\"test\",\"completed\":false}";
 
+        Todo todo = new Todo("1","","testing",false);
         when(todoService.create(Mockito.any(TodoCreateRequest.class))).thenThrow(new IllegalArgumentException());
         mockMvc.perform(post("/create")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(invalidRequestJson))
-                .andExpect(status().isBadRequest());
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(objectMapper.writeValueAsString(todo)));
     }
     @Test
     public void testCreateTodowithEmptydescription() throws Exception{
-
-        String invalidRequestJson = "{\"title\":\"test\",\"description\":\"\",\"completed\":false}";
+        Todo todo = new Todo("1","test","",false);
+        String invalidRequestJson = objectMapper.writeValueAsString(todo);
 
         when(todoService.create(Mockito.any(TodoCreateRequest.class))).thenThrow(new IllegalArgumentException());
         mockMvc.perform(post("/create")
@@ -157,14 +159,14 @@ public class TodoControllerTest {
     public void testCreateTodoWithInvalid() throws Exception {
         Todo todo = new Todo("1", "Testing", "test a system", false);
 
-        String todoCreateRequestJson = "{\"title\":\"Testing\",\"description\":\"test a system\"}";
 
-        when(todoService.create(Mockito.any(TodoCreateRequest.class))).thenReturn(todo);
+
+            Mockito.when(todoService.create(Mockito.any(TodoCreateRequest.class))).thenReturn(todo);
 
         mockMvc.perform(post("/createe")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(todoCreateRequestJson))
-                .andExpect(status().isNotFound());
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().json(objectMapper.writeValueAsString(todo)));
     }
     @Test
     public void testupdate() throws Exception{
